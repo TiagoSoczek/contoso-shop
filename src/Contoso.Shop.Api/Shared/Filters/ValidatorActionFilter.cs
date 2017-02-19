@@ -3,6 +3,7 @@ using Contoso.Shop.Api.Shared.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Linq;
+using Contoso.Shop.Api.Shared.Resources;
 
 namespace Contoso.Shop.Api.Shared.Filters
 {
@@ -14,8 +15,7 @@ namespace Contoso.Shop.Api.Shared.Filters
             {
                 if (actionArgumentsValue.Value == null)
                 {
-                    // TODO: Improve error message
-                    filterContext.ModelState.AddModelError(actionArgumentsValue.Key, "Null");
+                    filterContext.ModelState.AddModelError(actionArgumentsValue.Key, Messages.NullParameterError);
                 }
             }
 
@@ -29,7 +29,7 @@ namespace Contoso.Shop.Api.Shared.Filters
 
             var resultDto = new ErrorResultDto
             {
-                Error = "Falha de validação",
+                Error = Messages.ValidationError,
                 Issues = issues
             };
 
