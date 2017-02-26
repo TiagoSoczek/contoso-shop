@@ -1,15 +1,18 @@
-﻿using Contoso.Shop.Api.Shared.Filters;
+﻿using Contoso.Shop.Api.Shared.Dtos;
+using Contoso.Shop.Api.Shared.Filters;
 using Contoso.Shop.Infra.Shared.Data;
 using Contoso.Shop.Infra.Shared.Repositories;
 using Contoso.Shop.Model.Catalog.Handlers;
 using Contoso.Shop.Model.Shared.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Contoso.Shop.Api
 {
@@ -35,6 +38,8 @@ namespace Contoso.Shop.Api
                 x.Filters.Add(typeof(ValidatorActionFilter));
                 x.Filters.Add(typeof(HandleErrorFilter));
                 x.Filters.Add(typeof(DataContextTransactionFilter));
+                x.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResultDto), 400));
+                x.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResultDto), 500));
             })
             .AddJsonOptions(x => x.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
 
@@ -45,6 +50,11 @@ namespace Contoso.Shop.Api
             services.AddScoped<ProductHandlers>();
             services.AddScoped<DepartamentHandlers>();
             services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "ContosoShop API", Version = "v1" });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -58,6 +68,13 @@ namespace Contoso.Shop.Api
             }
 
             app.UseMvc();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUi(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
         }
     }
 }

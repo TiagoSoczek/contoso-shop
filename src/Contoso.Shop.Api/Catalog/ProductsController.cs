@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Contoso.Shop.Api.Catalog.Dtos;
 using Contoso.Shop.Api.Shared;
+using Contoso.Shop.Api.Shared.Dtos;
 using Contoso.Shop.Model.Catalog;
 using Contoso.Shop.Model.Catalog.Handlers;
 using Contoso.Shop.Model.Shared.Commands;
 using Contoso.Shop.Model.Shared.Queries;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Contoso.Shop.Api.Catalog
 {
@@ -20,6 +22,7 @@ namespace Contoso.Shop.Api.Catalog
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(ProductDto), 200)]
         public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         {
             var result = await handler.Handle(dto);
@@ -28,6 +31,7 @@ namespace Contoso.Shop.Api.Catalog
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(ProductDto[]), 200)]
         public async Task<IActionResult> Get()
         {
             var items = await handler.Handle(Query.All<Product>());
@@ -36,6 +40,7 @@ namespace Contoso.Shop.Api.Catalog
         }
 
         [HttpGet(RouteConstants.IdInt)]
+        [ProducesResponseType(typeof(ProductDto), 200)]
         public async Task<IActionResult> Get(int id)
         {
             var result = await handler.Handle(Query.ById<Product>(id));
@@ -44,6 +49,7 @@ namespace Contoso.Shop.Api.Catalog
         }
 
         [HttpPost(RouteConstants.IdInt)]
+        [ProducesResponseType(typeof(ProductDto), 200)]
         public async Task<IActionResult> Update([FromBody] UpdateProductDto dto, int id)
         {
             dto.Id = id;
@@ -61,7 +67,7 @@ namespace Contoso.Shop.Api.Catalog
             return As(result);
         }
 
-        public ProductDto MapToDto(Product product)
+        private ProductDto MapToDto(Product product)
         {
             return new ProductDto
             {

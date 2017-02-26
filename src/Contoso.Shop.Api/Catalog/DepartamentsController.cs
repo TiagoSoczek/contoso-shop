@@ -6,6 +6,7 @@ using Contoso.Shop.Model.Catalog.Handlers;
 using Contoso.Shop.Model.Shared.Commands;
 using Contoso.Shop.Model.Shared.Queries;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Contoso.Shop.Api.Catalog
 {
@@ -20,6 +21,7 @@ namespace Contoso.Shop.Api.Catalog
         }
 
         [HttpPost]
+        [SwaggerResponse(200, typeof(DepartamentDto))]
         public async Task<IActionResult> Create([FromBody] CreateDepartamentDto dto)
         {
             var result = await handler.Handle(dto);
@@ -29,6 +31,7 @@ namespace Contoso.Shop.Api.Catalog
 
 
         [HttpGet]
+        [SwaggerResponse(200, typeof(DepartamentDto[]))]
         public async Task<IActionResult> Get()
         {
             var items = await handler.Handle(Query.All<Departament>());
@@ -37,6 +40,7 @@ namespace Contoso.Shop.Api.Catalog
         }
 
         [HttpGet(RouteConstants.IdInt)]
+        [SwaggerResponse(200, typeof(DepartamentDto))]
         public async Task<IActionResult> Get(int id)
         {
             var result = await handler.Handle(Query.ById<Departament>(id));
@@ -45,6 +49,7 @@ namespace Contoso.Shop.Api.Catalog
         }
 
         [HttpPost(RouteConstants.IdInt)]
+        [SwaggerResponse(200, typeof(DepartamentDto))]
         public async Task<IActionResult> Update([FromBody] UpdateDepartamentDto dto, int id)
         {
             dto.Id = id;
@@ -62,7 +67,7 @@ namespace Contoso.Shop.Api.Catalog
             return As(result);
         }
 
-        public DepartamentDto MapToDto(Departament departament)
+        private DepartamentDto MapToDto(Departament departament)
         {
             return new DepartamentDto
             {
