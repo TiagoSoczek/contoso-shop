@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Linq;
 using Contoso.Shop.Api.Shared.Resources;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Contoso.Shop.Api.Shared.Filters
 {
@@ -25,7 +26,7 @@ namespace Contoso.Shop.Api.Shared.Filters
             }
 
             var issues = filterContext.ModelState.
-                ToDictionary(x => x.Key, x => x.Value.Errors.Select(e => e.ErrorMessage).ToArray());
+                ToDictionary(x => x.Key, x => x.Value.Errors.Select(GetValidationMessage).ToArray());
 
             var resultDto = new ErrorResultDto
             {
@@ -38,7 +39,21 @@ namespace Contoso.Shop.Api.Shared.Filters
 
         public void OnActionExecuted(ActionExecutedContext filterContext)
         {
+        }
 
+        private string GetValidationMessage(ModelError error)
+        {
+            if (!string.IsNullOrWhiteSpace(error.ErrorMessage))
+            {
+                return error.ErrorMessage;
+            }
+
+            if (error.Exception != null)
+            {
+                return error.Exception.Message;
+            }
+
+            return Messages.UnknownValidationError;
         }
     }
 }

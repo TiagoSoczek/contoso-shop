@@ -1,12 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Contoso.Shop.Model.Catalog.Commands;
 using Contoso.Shop.Model.Shared;
 using Contoso.Shop.Model.Shared.Commands;
+using Contoso.Shop.Model.Shared.Queries;
 using Contoso.Shop.Model.Shared.Repositories;
 
 namespace Contoso.Shop.Model.Catalog.Handlers
 {
-    public class DepartamentHandlers : IHandler<ICreateDepartament, Departament>
+    public class DepartamentHandlers
     {
         private readonly IRepository<Departament> repository;
 
@@ -22,28 +24,64 @@ namespace Contoso.Shop.Model.Catalog.Handlers
                 throw Error.ArgumentNull(nameof(command));
             }
 
-            var validationResult = Validate(command);
-
-            if (validationResult.IsFailure)
-            {
-                return validationResult.As<Departament>();
-            }
-
-            var departament = new Departament
-            {
-                Title = command.Title,
-                Description = command.Description,
-                CreatedAt = Clock.Now
-            };
+            var departament = Departament.Create(command);
 
             await repository.Insert(departament);
 
             return Result.Ok(departament);
         }
 
-        private Result Validate(ICreateDepartament command)
+        public Task<IEnumerable<Departament>> Handle(GetAll<Departament> query)
         {
-            return Result.Ok();
+            if (query == null)
+            {
+                throw Error.ArgumentNull(nameof(query));
+            }
+
+            return repository.GetAll();
+        }
+
+        public Task<Result> Handle(RemoveCommand<Departament> command)
+        {
+            if (command == null)
+            {
+                throw Error.ArgumentNull(nameof(command));
+            }
+
+            return repository.Delete(command.Id);
+        }
+
+        public Task<Result<Departament>> Handle(GetById<Departament> query)
+        {
+            if (query == null)
+            {
+                throw Error.ArgumentNull(nameof(query));
+            }
+
+            return repository.GetById(query.Id);
+        }
+
+        public async Task<Result<Departament>> Handle(IUpdateDepartament command)
+        {
+            if (command == null)
+            {
+                throw Error.ArgumentNull(nameof(command));
+            }
+
+            var productResult = await repository.GetById(command.Id);
+
+            if (productResult.IsFailure)
+            {
+                return productResult;
+            }
+
+            var product = productResult.Value;
+
+            product.Apply(command);
+
+            await repository.Update(product);
+
+            return Result.Ok(product);
         }
     }
 }

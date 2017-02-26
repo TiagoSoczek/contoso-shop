@@ -1,17 +1,13 @@
-﻿using Contoso.Shop.Api.Shared.Filters;
-using Contoso.Shop.Infra.Shared.Data;
-using Contoso.Shop.Infra.Shared.Repositories;
-using Contoso.Shop.Model.Catalog.Handlers;
-using Contoso.Shop.Model.Shared.Repositories;
+﻿using Contoso.Shop.Infra.Shared.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
-namespace Contoso.Shop.Api
+namespace Contoso.Shop.Infra.Migrations
 {
     public class Startup
     {
@@ -30,34 +26,26 @@ namespace Contoso.Shop.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(x =>
-            {
-                x.Filters.Add(typeof(ValidatorActionFilter));
-                x.Filters.Add(typeof(HandleErrorFilter));
-                x.Filters.Add(typeof(DataContextTransactionFilter));
-            })
-            .AddJsonOptions(x => x.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
-
-            services.AddDbContext<ShopDataContext>(x => 
-                x.UseSqlServer(Configuration.GetConnectionString("ContosoShop"))
+            services.AddDbContext<ShopDataContext>(x =>
+                x.UseSqlServer(Configuration.GetConnectionString("ContosoShop"),
+                               o => o.MigrationsAssembly("Contoso.Shop.Infra.Migrations"))
             );
-
-            services.AddScoped<ProductHandlers>();
-            services.AddScoped<DepartamentHandlers>();
-            services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
         }
 
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("logging"));
-            loggerFactory.AddDebug();
+            loggerFactory.AddConsole();
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
+            app.Run(async (context) =>
+            {
+                await context.Response.WriteAsync("Contoso Shop Migrations Tool. Use with 'dotnet ef'");
+            });
         }
     }
 }

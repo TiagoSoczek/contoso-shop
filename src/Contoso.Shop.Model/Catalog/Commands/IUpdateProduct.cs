@@ -1,8 +1,8 @@
 ﻿namespace Contoso.Shop.Model.Catalog.Commands
 {
-    public interface ICreateProduct
+    public interface IUpdateProduct
     {
-        string Sku { get; }
+        int Id { get; }
 
         string Title { get; }
 

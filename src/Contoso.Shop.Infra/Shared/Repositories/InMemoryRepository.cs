@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Contoso.Shop.Model.Shared;
@@ -21,23 +22,25 @@ namespace Contoso.Shop.Infra.Shared.Repositories
             logger = loggerFactory.CreateLogger($"InMemoryRepository-{typeof(T).Name}");
         }
 
-        public Task Delete(T entity)
+        public Task<Result> Delete(T entity)
         {
-            if (data.TryRemove(entity.Id, out entity))
-            {
-                logger.LogTrace($"#{entity.Id} removed");
-
-                return Task.CompletedTask;
-            }
-
-            logger.LogTrace($"#{entity.Id} not found");
-
-            throw new InvalidOperationException($"{typeof(T).Name} not exists with id {entity.Id}");
+            return Delete(entity.Id);
         }
 
-        public async Task<bool> Exists(Func<T, bool> predicate)
+        public async Task<Result> Delete(int entityId)
         {
-            return data.Values.Any(predicate);
+            T entity;
+
+            if (data.TryRemove(entityId, out entity))
+            {
+                logger.LogTrace($"#{entityId} removed");
+
+                return Result.Ok();
+            }
+
+            logger.LogTrace($"#{entityId} not found");
+
+            return CommonResults.EntityNotFoundToRemove<T>(entityId);
         }
 
         public async Task<IEnumerable<T>> GetAll()
@@ -47,20 +50,21 @@ namespace Contoso.Shop.Infra.Shared.Repositories
             return data.Values;
         }
 
-        public async Task<T> GetById(int id)
+        public async Task<T> Update(T entity)
         {
-            T entity;
-
-            if (data.TryGetValue(id, out entity))
+            if (data.TryUpdate(entity.Id, entity, entity))
             {
-                logger.LogTrace($"#{id} returned");
+                logger.LogTrace($"#{entity.Id} updated");
 
                 return entity;
             }
 
-            logger.LogTrace($"#{id} not found");
+            throw new InvalidOperationException($"{typeof(T).Name} not exists with id {entity.Id}");
+        }
 
-            return null;
+        public Task Insert(IEnumerable<T> entities)
+        {
+            return Task.WhenAll(entities.Select(Insert));
         }
 
         public async Task<T> Insert(T entity)
@@ -80,16 +84,59 @@ namespace Contoso.Shop.Infra.Shared.Repositories
             return entity;
         }
 
-        public async Task<T> Update(T entity)
+        public Task Update(IEnumerable<T> entities)
         {
-            if (data.TryUpdate(entity.Id, entity, entity))
+            return Task.WhenAll(entities.Select(Update));
+        }
+
+        public Task<bool> Exists(int id)
+        {
+            return Exists(x => id.Equals(x.Id));
+        }
+
+        public async Task<Result> EnsureExists(int id)
+        {
+            var exists = await Exists(id);
+
+            return exists ? Result.Ok() : CommonResults.NotFound<T>(id);
+        }
+
+        public async Task<T> GetByIdOrNull(int id)
+        {
+            T entity;
+
+            if (data.TryGetValue(id, out entity))
             {
-                logger.LogTrace($"#{entity.Id} updated");
+                logger.LogTrace($"#{id} returned");
 
                 return entity;
             }
 
-            throw new InvalidOperationException($"{typeof(T).Name} not exists with id {entity.Id}");
+            logger.LogTrace($"#{id} not found");
+
+            return null;
+        }
+
+        public async Task<bool> Exists(Expression<Func<T, bool>> condition)
+        {
+            return data.Values.Any(condition.Compile());
+        }
+
+        public async Task<T> FirstOrNull(Expression<Func<T, bool>> condition)
+        {
+            return data.Values.FirstOrDefault(condition.Compile());
+        }
+
+        public async Task<IEnumerable<T>> Where(Expression<Func<T, bool>> condition)
+        {
+            return data.Values.Where(condition.Compile());
+        }
+
+        public async Task<Result<T>> GetById(int id)
+        {
+            var entity = await GetByIdOrNull(id);
+
+            return entity == null ? CommonResults.NotFound<T>(id) : Result.Ok(entity);
         }
     }
 }

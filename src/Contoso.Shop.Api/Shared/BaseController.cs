@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Contoso.Shop.Api.Shared.Dtos;
 using Contoso.Shop.Model.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +10,11 @@ namespace Contoso.Shop.Api.Shared
 {
     public abstract class BaseController : Controller
     {
+        protected IActionResult Map<T, TR>(IEnumerable<T> items, Func<T, TR> map)
+        {
+            return Ok(items.Select(map));
+        }
+
         protected IActionResult As<T, TR>(Result<T> result, Func<T, TR> map)
         {
             if (result.IsSuccess)

@@ -3,10 +3,10 @@ using Contoso.Shop.Model.Catalog.Commands;
 
 namespace Contoso.Shop.Api.Catalog.Dtos
 {
-    public class CreateProductDto : ICreateProduct
+    public class UpdateProductDto : IUpdateProduct
     {
-        [Required, MinLength(3), MaxLength(30)]
-        public string Sku { get; set; }
+        [Required]
+        public int Id { get; set; }
 
         [Required, MinLength(3), MaxLength(50)]
         public string Title { get; set; }

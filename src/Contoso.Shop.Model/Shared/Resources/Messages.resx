@@ -117,16 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="InternalServerError" xml:space="preserve">
-    <value>Ops, ocorreu um erro interno!</value>
+  <data name="EntityNotFound" xml:space="preserve">
+    <value>Entidade '{0}' não encontrada com id {1}.</value>
   </data>
-  <data name="NullParameterError" xml:space="preserve">
-    <value>O corpo da mensagem nào pode ser nulo</value>
-  </data>
-  <data name="UnknownValidationError" xml:space="preserve">
-    <value>Erro desconhecido de validação</value>
-  </data>
-  <data name="ValidationError" xml:space="preserve">
-    <value>Erros de validação</value>
+  <data name="EntityNotFoundToRemove" xml:space="preserve">
+    <value>Entidade '{0}' não encontrada com id {1} para exclusão. Ela pode ter sido excluída por outro usuário.</value>
   </data>
 </root>

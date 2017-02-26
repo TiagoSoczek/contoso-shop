@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Contoso.Shop.Api.Shared.Resources {
+namespace Contoso.Shop.Model.Shared.Resources {
     using System;
     using System.Reflection;
     
@@ -40,7 +40,7 @@ namespace Contoso.Shop.Api.Shared.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Contoso.Shop.Api.Shared.Resources.Messages", typeof(Messages).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Contoso.Shop.Model.Shared.Resources.Messages", typeof(Messages).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -62,38 +62,20 @@ namespace Contoso.Shop.Api.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ops, ocorreu um erro interno!.
+        ///   Looks up a localized string similar to Entidade &apos;{0}&apos; não encontrada com id {1}..
         /// </summary>
-        internal static string InternalServerError {
+        internal static string EntityNotFound {
             get {
-                return ResourceManager.GetString("InternalServerError", resourceCulture);
+                return ResourceManager.GetString("EntityNotFound", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to O corpo da mensagem nào pode ser nulo.
+        ///   Looks up a localized string similar to Entidade &apos;{0}&apos; não encontrada com id {1} para exclusão. Ela pode ter sido excluída por outro usuário..
         /// </summary>
-        internal static string NullParameterError {
+        internal static string EntityNotFoundToRemove {
             get {
-                return ResourceManager.GetString("NullParameterError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Erro desconhecido de validação.
-        /// </summary>
-        internal static string UnknownValidationError {
-            get {
-                return ResourceManager.GetString("UnknownValidationError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Erros de validação.
-        /// </summary>
-        internal static string ValidationError {
-            get {
-                return ResourceManager.GetString("ValidationError", resourceCulture);
+                return ResourceManager.GetString("EntityNotFoundToRemove", resourceCulture);
             }
         }
     }
