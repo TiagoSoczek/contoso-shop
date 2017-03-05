@@ -43,6 +43,8 @@ namespace Contoso.Shop.Api
             })
             .AddJsonOptions(x => x.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
 
+            services.AddCors();
+
             services.AddDbContext<ShopDataContext>(x => 
                 x.UseSqlServer(Configuration.GetConnectionString("ContosoShop"))
             );
@@ -66,6 +68,8 @@ namespace Contoso.Shop.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().AllowCredentials());
 
             app.UseMvc();
 

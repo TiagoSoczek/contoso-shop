@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Contoso.Shop.Api
