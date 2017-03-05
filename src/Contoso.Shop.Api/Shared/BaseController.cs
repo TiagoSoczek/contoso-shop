@@ -1,30 +1,37 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using AutoMapper;
 using Contoso.Shop.Api.Shared.Dtos;
 using Contoso.Shop.Model.Shared;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Contoso.Shop.Api.Shared
 {
     public abstract class BaseController : Controller
     {
-        protected IActionResult Map<T, TR>(IEnumerable<T> items, Func<T, TR> map)
+        protected BaseController(IMediator mediator, IMapper mapper)
         {
-            return Ok(items.Select(map));
+            Mediator = mediator;
+            Mapper = mapper;
         }
 
-        protected IActionResult As<T, TR>(Result<T> result, Func<T, TR> map)
+        protected IMediator Mediator { get; }
+        protected IMapper Mapper { get; }
+
+        protected T MapTo<T>(object source) => Mapper.Map<T>(source);
+
+        protected IActionResult As<T>(IEnumerable items)
+        {
+            return Ok(Mapper.Map<IEnumerable<T>>(items));
+        }
+
+        protected IActionResult As<T, TR>(Result<T> result, Func<object, TR> map)
         {
             if (result.IsSuccess)
             {
-                if (map != null)
-                {
-                    return Ok(map(result.Value));
-                }
-
-                return Ok(result.Value);
+                return Ok(map(result.Value));
             }
 
             return As((Result)result);

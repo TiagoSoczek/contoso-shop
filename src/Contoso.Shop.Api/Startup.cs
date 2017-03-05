@@ -1,9 +1,12 @@
-﻿using Contoso.Shop.Api.Shared.Dtos;
+﻿using AutoMapper;
+using Contoso.Shop.Api.Shared.Dtos;
 using Contoso.Shop.Api.Shared.Filters;
 using Contoso.Shop.Infra.Shared.Data;
 using Contoso.Shop.Infra.Shared.Repositories;
-using Contoso.Shop.Model.Catalog.Handlers;
+using Contoso.Shop.Model.Catalog.Commands;
 using Contoso.Shop.Model.Shared.Repositories;
+using FluentValidation.AspNetCore;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +44,12 @@ namespace Contoso.Shop.Api
                 x.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResultDto), 400));
                 x.Filters.Add(new ProducesResponseTypeAttribute(typeof(ErrorResultDto), 500));
             })
-            .AddJsonOptions(x => x.SerializerSettings.NullValueHandling = NullValueHandling.Ignore);
+            .AddJsonOptions(x => x.SerializerSettings.NullValueHandling = NullValueHandling.Ignore)
+            .AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<CreateProduct>());
+
+            services.AddAutoMapper();
+
+            Mapper.AssertConfigurationIsValid();
 
             services.AddCors();
 
@@ -49,8 +57,8 @@ namespace Contoso.Shop.Api
                 x.UseSqlServer(Configuration.GetConnectionString("ContosoShop"))
             );
 
-            services.AddScoped<ProductHandlers>();
-            services.AddScoped<DepartamentHandlers>();
+            services.AddMediatR(typeof(CreateProduct));
+
             services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
 
             services.AddSwaggerGen(c =>

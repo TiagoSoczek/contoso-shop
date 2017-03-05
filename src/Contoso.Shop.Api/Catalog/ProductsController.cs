@@ -1,86 +1,69 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
 using Contoso.Shop.Api.Catalog.Dtos;
 using Contoso.Shop.Api.Shared;
-using Contoso.Shop.Api.Shared.Dtos;
 using Contoso.Shop.Model.Catalog;
-using Contoso.Shop.Model.Catalog.Handlers;
+using Contoso.Shop.Model.Catalog.Commands;
+using Contoso.Shop.Model.Shared;
 using Contoso.Shop.Model.Shared.Commands;
 using Contoso.Shop.Model.Shared.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Contoso.Shop.Api.Catalog
 {
     [Route(RouteConstants.Controller)]
     public class ProductsController : BaseController
     {
-        private readonly ProductHandlers handler;
-
-        public ProductsController(ProductHandlers handler)
+        public ProductsController(IMediator mediator, IMapper mapper) : base(mediator, mapper)
         {
-            this.handler = handler;
         }
 
         [HttpPost]
         [ProducesResponseType(typeof(ProductDto), 200)]
-        public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateProduct command)
         {
-            var result = await handler.Handle(dto);
+            Result<Product> result = await Mediator.Send(command);
 
-            return As(result, MapToDto);
+            return As(result, MapTo<ProductDto>);
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(ProductDto[]), 200)]
         public async Task<IActionResult> Get()
         {
-            var items = await handler.Handle(Query.All<Product>());
+            IEnumerable<Product> items = await Mediator.Send(Query.All<Product>());
 
-            return Map(items, MapToDto);
+            return As<ProductDto>(items);
         }
 
         [HttpGet(RouteConstants.IdInt)]
         [ProducesResponseType(typeof(ProductDto), 200)]
         public async Task<IActionResult> Get(int id)
         {
-            var result = await handler.Handle(Query.ById<Product>(id));
+            Result<Product> result = await Mediator.Send(Query.ById<Product>(id));
 
-            return As(result, MapToDto);
+            return As(result, MapTo<ProductDto>);
         }
 
         [HttpPost(RouteConstants.IdInt)]
         [ProducesResponseType(typeof(ProductDto), 200)]
-        public async Task<IActionResult> Update([FromBody] UpdateProductDto dto, int id)
+        public async Task<IActionResult> Update([FromBody] UpdateProduct command, int id)
         {
-            dto.Id = id;
+            command.Id = id;
 
-            var result = await handler.Handle(dto);
+            Result<Product> result = await Mediator.Send(command);
 
-            return As(result, MapToDto);
+            return As(result, MapTo<ProductDto>);
         }
 
         [HttpDelete(RouteConstants.IdInt)]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await handler.Handle(Remove.For<Product>(id));
+            Result result = await Mediator.Send(Remove.For<Product>(id));
 
             return As(result);
-        }
-
-        private ProductDto MapToDto(Product product)
-        {
-            return new ProductDto
-            {
-                Id = product.Id,
-                Sku = product.Sku,
-                Title = product.Title,
-                ShortDescription = product.ShortDescription,
-                Price = product.Price,
-                Quantity = product.Quantity,
-                DepartamentId = product.DepartamentId,
-                CreatedAt = product.CreatedAt,
-                UpdatedAt = product.UpdatedAt
-            };
         }
     }
 }

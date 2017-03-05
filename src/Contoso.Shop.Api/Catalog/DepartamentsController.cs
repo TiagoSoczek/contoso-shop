@@ -1,10 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using AutoMapper;
 using Contoso.Shop.Api.Catalog.Dtos;
 using Contoso.Shop.Api.Shared;
 using Contoso.Shop.Model.Catalog;
-using Contoso.Shop.Model.Catalog.Handlers;
+using Contoso.Shop.Model.Catalog.Commands;
+using Contoso.Shop.Model.Shared;
 using Contoso.Shop.Model.Shared.Commands;
 using Contoso.Shop.Model.Shared.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -13,70 +17,54 @@ namespace Contoso.Shop.Api.Catalog
     [Route(RouteConstants.Controller)]
     public class DepartamentsController : BaseController
     {
-        private readonly DepartamentHandlers handler;
-
-        public DepartamentsController(DepartamentHandlers handler)
+        public DepartamentsController(IMediator mediator, IMapper mapper) : base(mediator, mapper)
         {
-            this.handler = handler;
         }
 
         [HttpPost]
         [SwaggerResponse(200, typeof(DepartamentDto))]
-        public async Task<IActionResult> Create([FromBody] CreateDepartamentDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateDepartament command)
         {
-            var result = await handler.Handle(dto);
+            Result<Departament> result = await Mediator.Send(command);
 
-            return As(result, MapToDto);
+            return As(result, MapTo<DepartamentDto>);
         }
-
 
         [HttpGet]
         [SwaggerResponse(200, typeof(DepartamentDto[]))]
         public async Task<IActionResult> Get()
         {
-            var items = await handler.Handle(Query.All<Departament>());
+            IEnumerable<Departament> items = await Mediator.Send(Query.All<Departament>());
 
-            return Map(items, MapToDto);
+            return As<DepartamentDto>(items);
         }
 
         [HttpGet(RouteConstants.IdInt)]
         [SwaggerResponse(200, typeof(DepartamentDto))]
         public async Task<IActionResult> Get(int id)
         {
-            var result = await handler.Handle(Query.ById<Departament>(id));
+            Result<Departament> result = await Mediator.Send(Query.ById<Departament>(id));
 
-            return As(result, MapToDto);
+            return As(result, MapTo<DepartamentDto>);
         }
 
         [HttpPost(RouteConstants.IdInt)]
         [SwaggerResponse(200, typeof(DepartamentDto))]
-        public async Task<IActionResult> Update([FromBody] UpdateDepartamentDto dto, int id)
+        public async Task<IActionResult> Update([FromBody] UpdateDepartament command, int id)
         {
-            dto.Id = id;
+            command.Id = id;
 
-            var result = await handler.Handle(dto);
+            Result<Departament> result = await Mediator.Send(command);
 
-            return As(result, MapToDto);
+            return As(result, MapTo<DepartamentDto>);
         }
 
         [HttpDelete(RouteConstants.IdInt)]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await handler.Handle(Remove.For<Departament>(id));
+            Result result = await Mediator.Send(Remove.For<Departament>(id));
 
             return As(result);
-        }
-
-        private DepartamentDto MapToDto(Departament departament)
-        {
-            return new DepartamentDto
-            {
-                Id = departament.Id,
-                Title = departament.Title,
-                Description = departament.Description,
-                CreatedAt = departament.CreatedAt,
-                UpdatedAt = departament.UpdatedAt
-            };
         }
     }
 }

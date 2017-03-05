@@ -1,6 +1,8 @@
-﻿namespace Contoso.Shop.Model.Shared.Queries
+﻿using MediatR;
+
+namespace Contoso.Shop.Model.Shared.Queries
 {
-    public sealed class GetById<T> where T : Entity
+    public sealed class GetById<T> : IRequest<Result<T>> where T : Entity
     {
         internal GetById(int id)
         {

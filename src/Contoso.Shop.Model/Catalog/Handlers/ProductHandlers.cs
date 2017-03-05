@@ -5,10 +5,15 @@ using Contoso.Shop.Model.Shared.Commands;
 using Contoso.Shop.Model.Shared.Queries;
 using Contoso.Shop.Model.Shared.Repositories;
 using System.Collections.Generic;
+using MediatR;
 
 namespace Contoso.Shop.Model.Catalog.Handlers
 {
-    public class ProductHandlers
+    public class ProductHandlers : IAsyncRequestHandler<CreateProduct, Result<Product>>, 
+                                   IAsyncRequestHandler<UpdateProduct, Result<Product>>,
+                                   IAsyncRequestHandler<GetAll<Product>, IEnumerable<Product>>,
+                                   IAsyncRequestHandler<GetById<Product>, Result<Product>>,
+                                   IAsyncRequestHandler<RemoveCommand<Product>, Result>
     {
         private readonly IRepository<Product> repository;
         private readonly IRepository<Departament> departamentRepository;
@@ -48,7 +53,7 @@ namespace Contoso.Shop.Model.Catalog.Handlers
 
             return repository.GetById(query.Id);
         }
-        public async Task<Result<Product>> Handle(IUpdateProduct command)
+        public async Task<Result<Product>> Handle(UpdateProduct command)
         {
             if (command == null)
             {
@@ -78,7 +83,7 @@ namespace Contoso.Shop.Model.Catalog.Handlers
             return Result.Ok(product);
         }
 
-        public async Task<Result<Product>> Handle(ICreateProduct command)
+        public async Task<Result<Product>> Handle(CreateProduct command)
         {
             if (command == null)
             {
@@ -99,7 +104,7 @@ namespace Contoso.Shop.Model.Catalog.Handlers
             return Result.Ok(product);
         }
 
-        private async Task<Result> Validate(ICreateProduct command)
+        private async Task<Result> Validate(CreateProduct command)
         {
             var existsWithSku = await repository.Exists(x => x.Sku == command.Sku);
 
@@ -113,7 +118,7 @@ namespace Contoso.Shop.Model.Catalog.Handlers
             return deptoExists;
         }
 
-        private async Task<Result> Validate(IUpdateProduct command)
+        private async Task<Result> Validate(UpdateProduct command)
         {
             var deptExists = await departamentRepository.EnsureExists(command.DepartamentId);
 

@@ -28,7 +28,7 @@ namespace Contoso.Shop.Model.Catalog
 
         public DateTimeOffset? UpdatedAt { get; private set; }
 
-        public static Product Create(ICreateProduct command)
+        public static Product Create(CreateProduct command)
         {
             return new Product
             {
@@ -42,7 +42,7 @@ namespace Contoso.Shop.Model.Catalog
             };
         }
 
-        public void Apply(IUpdateProduct command)
+        public void Apply(UpdateProduct command)
         {
             DepartamentId = command.DepartamentId;
             Price = command.Price;

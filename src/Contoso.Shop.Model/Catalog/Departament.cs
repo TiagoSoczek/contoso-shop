@@ -15,7 +15,7 @@ namespace Contoso.Shop.Model.Catalog
         public DateTimeOffset CreatedAt { get; private set; }
         public DateTimeOffset? UpdatedAt { get; private set; }
 
-        public static Departament Create(ICreateDepartament command)
+        public static Departament Create(CreateDepartament command)
         {
             return new Departament
             {
@@ -25,7 +25,7 @@ namespace Contoso.Shop.Model.Catalog
             };
         }
 
-        public void Apply(IUpdateDepartament command)
+        public void Apply(UpdateDepartament command)
         {
             Title = command.Title;
             Description = command.Description;
