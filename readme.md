@@ -1,5 +1,7 @@
 # Contoso Shop
 
+![VSTS](https://tiagao.visualstudio.com/_apis/public/build/definitions/26d52dd0-7b3c-4d1b-bd8a-523896674d68/5/badge)
+
 Sample application with: 
 
 * ASP.NET Core MVC
