@@ -15,6 +15,7 @@ Sample application with:
 * MediatR
 * AutoMapper
 * Visual Studio 2017
+* C#
 
 Inspired in:
 
