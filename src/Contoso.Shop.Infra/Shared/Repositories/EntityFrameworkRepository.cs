@@ -23,7 +23,7 @@ namespace Contoso.Shop.Infra.Shared.Repositories
         {
             context.Add(entity);
 
-            await SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return entity;
         }

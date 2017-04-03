@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Contoso.Shop.Model.AccessControl.Services;
 using Contoso.Shop.Model.Catalog.Commands;
 using Contoso.Shop.Model.Shared;
 using Contoso.Shop.Model.Shared.Commands;
@@ -16,10 +17,12 @@ namespace Contoso.Shop.Model.Catalog.Handlers
                                    IAsyncRequestHandler<RemoveCommand<Departament>, Result>
     {
         private readonly IRepository<Departament> repository;
+        private readonly IAuditService auditService;
 
-        public DepartamentHandlers(IRepository<Departament> repository)
+        public DepartamentHandlers(IRepository<Departament> repository, IAuditService auditService)
         {
             this.repository = repository;
+            this.auditService = auditService;
         }
 
         public async Task<Result<Departament>> Handle(CreateDepartament command)
@@ -30,6 +33,8 @@ namespace Contoso.Shop.Model.Catalog.Handlers
             }
 
             var departament = Departament.Create(command);
+
+            await auditService.RegisterNew(departament);
 
             await repository.Insert(departament);
 
@@ -80,13 +85,15 @@ namespace Contoso.Shop.Model.Catalog.Handlers
                 return productResult;
             }
 
-            var product = productResult.Value;
+            var departament = productResult.Value;
 
-            product.Apply(command);
+            departament.Apply(command);
 
-            await repository.Update(product);
+            await auditService.RegisterUpdate(departament);
 
-            return Result.Ok(product);
+            await repository.Update(departament);
+
+            return Result.Ok(departament);
         }
     }
 }

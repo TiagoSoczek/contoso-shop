@@ -1,10 +1,9 @@
-﻿using System;
-using Contoso.Shop.Model.Catalog.Commands;
+﻿using Contoso.Shop.Model.Catalog.Commands;
 using Contoso.Shop.Model.Shared;
 
 namespace Contoso.Shop.Model.Catalog
 {
-    public class Product : Entity
+    public class Product : AuditedEntity
     {
         private Product()
         {
@@ -24,10 +23,6 @@ namespace Contoso.Shop.Model.Catalog
 
         public Departament Departament { get; private set; }
 
-        public DateTimeOffset CreatedAt { get; private set; }
-
-        public DateTimeOffset? UpdatedAt { get; private set; }
-
         public static Product Create(CreateProduct command)
         {
             return new Product
@@ -37,8 +32,7 @@ namespace Contoso.Shop.Model.Catalog
                 Price = command.Price,
                 Quantity = command.Quantity,
                 ShortDescription = command.ShortDescription,
-                Title = command.Title,
-                CreatedAt = Clock.Now
+                Title = command.Title
             };
         }
 
@@ -49,7 +43,6 @@ namespace Contoso.Shop.Model.Catalog
             Quantity = command.Quantity;
             ShortDescription = command.ShortDescription;
             Title = command.Title;
-            UpdatedAt = Clock.Now;
         }
     }
 }

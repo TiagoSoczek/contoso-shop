@@ -29,9 +29,7 @@ namespace Contoso.Shop.Infra.Shared.Repositories
 
         public async Task<Result> Delete(int entityId)
         {
-            T entity;
-
-            if (data.TryRemove(entityId, out entity))
+            if (data.TryRemove(entityId, out T entity))
             {
                 logger.LogTrace($"#{entityId} removed");
 
@@ -103,9 +101,7 @@ namespace Contoso.Shop.Infra.Shared.Repositories
 
         public async Task<T> GetByIdOrNull(int id)
         {
-            T entity;
-
-            if (data.TryGetValue(id, out entity))
+            if (data.TryGetValue(id, out T entity))
             {
                 logger.LogTrace($"#{id} returned");
 

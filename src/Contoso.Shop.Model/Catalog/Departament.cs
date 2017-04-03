@@ -1,10 +1,9 @@
-﻿using System;
-using Contoso.Shop.Model.Catalog.Commands;
+﻿using Contoso.Shop.Model.Catalog.Commands;
 using Contoso.Shop.Model.Shared;
 
 namespace Contoso.Shop.Model.Catalog
 {
-    public class Departament : Entity
+    public class Departament : AuditedEntity
     {
         private Departament()
         {
@@ -12,16 +11,13 @@ namespace Contoso.Shop.Model.Catalog
 
         public string Title { get; private set; }
         public string Description { get; private set; }
-        public DateTimeOffset CreatedAt { get; private set; }
-        public DateTimeOffset? UpdatedAt { get; private set; }
 
         public static Departament Create(CreateDepartament command)
         {
             return new Departament
             {
                 Title = command.Title,
-                Description = command.Description,
-                CreatedAt = Clock.Now
+                Description = command.Description
             };
         }
 
@@ -29,7 +25,6 @@ namespace Contoso.Shop.Model.Catalog
         {
             Title = command.Title;
             Description = command.Description;
-            UpdatedAt = Clock.Now;
         }
     }
 }

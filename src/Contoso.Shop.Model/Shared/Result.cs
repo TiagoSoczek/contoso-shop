@@ -49,7 +49,7 @@ namespace Contoso.Shop.Model.Shared
 
         public Result<T> As<T>(T value = default(T))
         {
-            return new Result<T>(value, IsSuccess, Error);
+            return new Result<T>(value, IsSuccess, Error, Code);
         }
     }
 

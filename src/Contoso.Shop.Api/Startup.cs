@@ -1,8 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Contoso.Shop.Api.Shared.Dtos;
 using Contoso.Shop.Api.Shared.Filters;
 using Contoso.Shop.Infra.Shared.Data;
 using Contoso.Shop.Infra.Shared.Repositories;
+using Contoso.Shop.Model.AccessControl.Services;
+using Contoso.Shop.Model.AccessControl.Services.Impl;
 using Contoso.Shop.Model.Catalog.Commands;
 using Contoso.Shop.Model.Shared.Repositories;
 using FluentValidation.AspNetCore;
@@ -60,7 +63,9 @@ namespace Contoso.Shop.Api
             services.AddMediatR(typeof(CreateProduct));
 
             services.AddScoped(typeof(IRepository<>), typeof(EntityFrameworkRepository<>));
-
+            services.AddScoped<ICurrentUserProvider, CurrentUserProvider>();
+            services.AddScoped<IAuditService, AuditService>();
+            
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "ContosoShop API", Version = "v1" });

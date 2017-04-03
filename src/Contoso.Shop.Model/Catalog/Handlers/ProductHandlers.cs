@@ -5,6 +5,7 @@ using Contoso.Shop.Model.Shared.Commands;
 using Contoso.Shop.Model.Shared.Queries;
 using Contoso.Shop.Model.Shared.Repositories;
 using System.Collections.Generic;
+using Contoso.Shop.Model.AccessControl.Services;
 using MediatR;
 
 namespace Contoso.Shop.Model.Catalog.Handlers
@@ -17,11 +18,13 @@ namespace Contoso.Shop.Model.Catalog.Handlers
     {
         private readonly IRepository<Product> repository;
         private readonly IRepository<Departament> departamentRepository;
+        private readonly IAuditService auditService;
 
-        public ProductHandlers(IRepository<Product> repository, IRepository<Departament> departamentRepository)
+        public ProductHandlers(IRepository<Product> repository, IRepository<Departament> departamentRepository, IAuditService auditService)
         {
             this.repository = repository;
             this.departamentRepository = departamentRepository;
+            this.auditService = auditService;
         }
 
         public Task<IEnumerable<Product>> Handle(GetAll<Product> query)
@@ -78,6 +81,8 @@ namespace Contoso.Shop.Model.Catalog.Handlers
 
             product.Apply(command);
 
+            await auditService.RegisterUpdate(product);
+
             await repository.Update(product);
 
             return Result.Ok(product);
@@ -98,6 +103,8 @@ namespace Contoso.Shop.Model.Catalog.Handlers
             }
 
             var product = Product.Create(command);
+
+            await auditService.RegisterNew(product);
 
             await repository.Insert(product);
 

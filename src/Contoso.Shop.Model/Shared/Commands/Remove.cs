@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace Contoso.Shop.Model.Shared.Commands
+﻿namespace Contoso.Shop.Model.Shared.Commands
 {
     public static class Remove
     {
