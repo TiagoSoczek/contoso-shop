@@ -6,8 +6,12 @@ namespace Contoso.Shop.Model.Shared
     {
         Unknown = 0,
         Ok = 200,
+        Created = 201,
+        NoContent = 204,
         BadRequest = 400,
-        NotFound = 404
+        NotFound = 404,
+        UnprocessableEntity = 422,
+        InternalServerError = 500
     }
 
     public class Result
@@ -33,9 +37,13 @@ namespace Contoso.Shop.Model.Shared
 
         public static Result<T> Ok<T>(T value, ResultCode code = ResultCode.Ok)
         {
-            return new Result<T>(value, true, string.Empty);
+            return new Result<T>(value, true, string.Empty, code);
         }
 
+        public static Result<T> Created<T>(T value)
+        {
+            return Ok(value, ResultCode.Created);
+        }
 
         public static Result Fail(string message, ResultCode code = ResultCode.BadRequest)
         {
@@ -49,7 +57,24 @@ namespace Contoso.Shop.Model.Shared
 
         public Result<T> As<T>(T value = default(T))
         {
-            return new Result<T>(value, IsSuccess, Error, Code);
+            return new Result<T>(value, IsSuccess, Error);
+        }
+
+        public static implicit operator bool(Result result)
+        {
+            return result.IsSuccess;
+        }
+
+        public static implicit operator Result(bool success)
+        {
+            if (success)
+            {
+                return Success;
+            }
+
+            Debug.Fail("You must return a failure message");
+
+            return Fail(null);
         }
     }
 
@@ -57,7 +82,8 @@ namespace Contoso.Shop.Model.Shared
     {
         private readonly T value;
 
-        protected internal Result(T value, bool isSuccess, string error, ResultCode code = ResultCode.Unknown) : base(isSuccess, error, code)
+        protected internal Result(T value, bool isSuccess, string error,
+            ResultCode code = ResultCode.Unknown) : base(isSuccess, error, code)
         {
             this.value = value;
         }
